@@ -104,6 +104,5 @@ for currentrow in theresultsfile :
  
 
 # Close files
-file1.close()
-file2.close()
+
 theresults.close()
