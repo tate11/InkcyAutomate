@@ -16,11 +16,13 @@ The CSV file has the following header row:
 * id: blank
 * sku: blank (will be auto-generated on import)
 * Title : ink name
-* Content: (if ink exists on fp-ink.info should have this format: )
+* Content: if ink exists on fp-ink.info should have this format  
     
-    <a href="http://www.fp-ink.info/en/details/ .ink"><img src="http://www.fp-ink.info/colorcard/ .png"></a>
-with the correct numbers for that ink on fp-ink.info (I have permission to use that website's images).
-eg <a href="http://www.fp-ink.info/en/details/224.ink"><img src="http://www.fp-ink.info/colorcard224.png"></a>
+    
+
+    `<a href="http://www.fp-ink.info/en/details/ .ink"><img src="http://www.fp-ink.info/colorcard/ .png"></a>
+    with the correct numbers for that ink on fp-ink.info (I have permission to use that website's images).
+    eg <a href="http://www.fp-ink.info/en/details/224.ink"><img src="http://www.fp-ink.info/colorcard224.png"></a>`
 
 *  Product Type: simple
 * parent_id : 0
