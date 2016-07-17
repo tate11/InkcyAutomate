@@ -203,6 +203,3 @@ if __name__ == '__main__':
 # -- human-readable names for all please ;)
  
 
-# Close files
-
-theresults.close()
