@@ -4,52 +4,152 @@
 import csv
 import os
 import urllib
+import multiprocessing
+from time import time
  
-# Download CSV file from source and save as airtable-source.csv
-# https://s3.amazonaws.com/airtable-csv-exports-production/85ae40fcf90f305273c19039ae5694a1/Table%201-Main%20View.csv
 
-atcsv = urllib.URLopener()
-atcsv.retrieve("https://s3.amazonaws.com/airtable-csv-exports-production/85ae40fcf90f305273c19039ae5694a1/Table%201-Main%20View.csv", "airtable-source.csv")
+def retrieve_airtable(filename):
+    '''
+   Download CSV file from source and save as airtable-source.csv
+   https://s3.amazonaws.com/airtable-csv-exports-production/85ae40fcf90f305273c19039ae5694a1/Table%201-Main%20View.csv
+   this is NOT a static URL!
+    
 
-# Generate the difference.csv file
+   !!!
+
+   NOT WORKING ANYMORE  - For now you have to manually download the file from
+   https://airtable.com/shrF8Vr0O5VPB6ZoR/tblp9rsxx6AsHwOzW/viw42CNIgWnLe5NSl
+   (click on the three dots, then "Download CSV")
+   and save it as airtable-source.csv in the same folder this script is in
+   
+   !!!
+
+   '''
+    airtabl_url = "https://s3.amazonaws.com/airtable-csv-exports-production/b82da440462b15aade5a2ca1705aeef3/Table%201-Main%20View.csv"
+    atcsv = urllib.URLopener()
+    try:
+        atcsv.retrieve(airtabl_url, filename)
+    except:
+        assert False, "Unable to retrieve airtable file"
  
- #file1 is the short one
- #file2 is the long one
-
-#thanks to hotpotatobeans for this part :)
+ 
 def import_csv(filename):
+    '''
+   Generate the difference.csv file
+ 
+   file1 is the short one
+   file2 is the long one
+ 
+   thanks to hotpotatobeans for this part :)
+   '''
     with open(filename) as file:
         # DictReader returns a generator, which would've been exhausted
         # on line 15
         return tuple(csv.DictReader(file))
-
-
+ 
+ 
+def save_differences(filename, master_file, new_file, matching_field="Imgur Address"):
+    '''
+   Calculates the differences between two files and saves it to a CSV file
+   '''
+ 
+    uniq_images = set(i[matching_field] for i in new_file) - set(i[matching_field] for i in master_file)
+    uniq_list = [i for i in new_file if i[matching_field] in uniq_images and len(i[matching_field].strip())]
+    with open(filename, 'wb') as file:
+        writer = csv.DictWriter(file, ('Name', 'Status', 'Donated by', 'Inkbot version', 'Imgur Address', 'Brand+ink regex', 'Automod rule'))
+        writer.writerows(uniq_list)
+    return uniq_list
+ 
+def download_image((image_path, imagelink)):
+    '''
+   Downloads a single image to a file for use in the parallel map
+   '''
+ 
+    if os.path.exists(image_path):
+        return ""
+ 
+    print "Retrieving file: {}".format(image_path)
+ 
+    try:
+        image = urllib.URLopener()
+        image.retrieve(imagelink, image_path)
+        return ""
+    except:
+        return image_path + "-" + imagelink
+ 
+def download_images(image_folder, uniq_list):
+    '''
+   Download all images and give them the correct name
+ 
+   Returns a list of failed images
+ 
+   Note: I've used multiprocessing here to download multiple images in parallel for faster processing
+   if you're interested in how this works check out the documentation here:
+   https://docs.python.org/2/library/multiprocessing.html
+   '''
+ 
+ 
+    MP_pool = multiprocessing.Pool()
+ 
+    image_data = [(os.path.join(image_folder, item['Name'].strip() + ".jpg"), item["Imgur Address"]) for item in uniq_list]
+ 
+    results = MP_pool.map(download_image, image_data)
+ 
+    return [x for x in results if len(x)]
+ 
 def main():
-    file1 = import_csv('goedewordpress.csv')
-    file2 = import_csv('airtable-source.csv')
-
-    uniq_images = set(i['Imgur Address'] for i in file2) - set(i['Imgur Address'] for i in file1)
-    with open('difference.csv', 'wb') as file:
-        writer = csv.DictWriter(file, ('Name', 'Status','Donated by','Inkbot version','Imgur Address','Brand+ink regex','Automod rule'))
-        writer.writerows(i for i in file2 if i['Imgur Address'] in uniq_images)
+    file_folder = "./" # Same folder script is run from
+    image_folder = "./Images" # A folder called Images inside the folder the script is in
+ 
+    wordpress_file = os.path.join(file_folder, "goedewordpress.csv")
+    airtable_file = os.path.join(file_folder, "airtable-source.csv")
+    difference_file = os.path.join(file_folder, "difference.csv")
+ 
+    assert os.path.exists(wordpress_file), "No Wordpress CSV file found"
+ 
+    start_time = time()
+ 
+    print "\nRetrieving Airtable file.."
+    
+    # has to be done manually for now
+    # retrieve_airtable(airtable_file)
+ 
+    print "\nAirtable File retrieved!"
+ 
+    print "\nImporting CSV files..."
+ 
+    file1 = import_csv(wordpress_file)
+    file2 = import_csv(airtable_file)
+ 
+    print "\nCSV Files imported!"
+ 
+    print "\nSaving the file differences..."
+ 
+    uniq_list = save_differences(difference_file, file1, file2)
+ 
+    print "\nDifferences saved!"
+ 
+    # THE BELOW IS NO LONGER NEEDED DUE TO THE TRY EXCEPTS IN THE DOWNLOAD LOOP
+    #
+    ## remove all empty rows and entries that have no imgur URL
+    ## raw_input("Remove rows that have no imgur URL, then press Enter to continue...")
+ 
+    print "\nDownloading new images..."
+ 
+    failed_images = download_images(image_folder, uniq_list)
+ 
+    print "\nNew Images downloaded!"
+ 
+    if len(failed_images):
+        print "\nThe following images failed to Download:\n{}".format("\n".join(failed_images))
+ 
+    print "\nScript completed in: {}s".format(time() - start_time)
+ 
 
 if __name__ == '__main__':
     main() 
 
-# remove all empty rows and entries that have no imgur URL
-raw_input("Remove rows that have no imgur URL, then press Enter to continue...")    
-
-theresults = file("difference.csv", 'rb')
-theresultsfile = csv.reader(theresults)
-
-for currentrow in theresultsfile :
-    # Download all images and give them the correct name
-    imagelink = currentrow[4]
-    name = str(currentrow[0])
-    fullpath = os.path.join("D:/InkCyclopedia/todo/" + name +".jpg")
-    image = urllib.URLopener()
-    image.retrieve(imagelink, fullpath)
-    
+ 
 
 # TO DO for helpful python coders:
 
