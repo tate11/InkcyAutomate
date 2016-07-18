@@ -8,15 +8,24 @@ import csv
 
 from difference import calculate_differences
 from difference import write_difference_file
+from difference import get_fp_ink_data
 from download import download_airtable_csv
 from download import download_images 
 from util import get_filepath
 from util import print_help
 
+# Hopefully forces UTF-8 encoding
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 def main(argv):
     """
 
     """
+
+    get_fp_ink_data()
+    sys.exit()
+
     file_directory = './'
     image_directory = 'Images'
     wordpress_file = 'goedewordpress.csv'
