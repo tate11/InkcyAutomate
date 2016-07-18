@@ -1,4 +1,6 @@
 # TODO
+* Python standard setup script and packaging info.
+* Confirm all functionality is maintained.
 * Test that output file format matches the provided import-products.csv.
 * Test the fp-ink.info scraping and merge.
     * English page URLs follow the pattern: https://www.fp-ink.info/en?page=<#>

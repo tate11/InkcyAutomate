@@ -2,7 +2,7 @@
 
 Automation script to upload new ink swatches to inkcyclopedia.com.
 
-Based on and hopefully improving upon [this script by benninkcorien][https://github.com/benninkcorien/InkcyAutomate].
+Based on and hopefully improving upon [this script by benninkcorien](https://github.com/benninkcorien/InkcyAutomate).
 
 ## Requirements
 
@@ -18,7 +18,7 @@ just use pip and get everything that you need.
 ## Usage
 
 Clone down the repository and go into the project directory. You'll need to
-download [Klundtasaur's Airtable list][https://airtable.com/shrF8Vr0O5VPB6ZoR/tblp9rsxx6AsHwOzW/viw42CNIgWnLe5NSl]
+download [Klundtasaur's Airtable list](https://airtable.com/shrF8Vr0O5VPB6ZoR/tblp9rsxx6AsHwOzW/viw42CNIgWnLe5NSl)
 by hand and save it somewhere accessible. Additionally you will need a CSV of
 the items currently in Wordpress saved somewhere handy. The script expects the
 following defaults but each can be overridden with an appropriate commandline
