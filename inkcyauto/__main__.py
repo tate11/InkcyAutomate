@@ -97,11 +97,8 @@ def main(argv):
 
     print 'Importing source CSVs...'
     with open(wordpress_file) as wordpress_file_handle, open(airtable_file) as airtable_file_handle:
-        wordpress_reader = csv.DictReader(wordpress_file_handle)
-        airtable_reader = csv.DictReader(airtable_file_handle)
-
         print 'Calculating differences...'
-        new_items = calculate_differences(wordpress_reader, airtable_reader)
+        new_items = calculate_differences(wordpress_file_handle, airtable_file_handle)
 
         print 'Writing differences out to file...'
         write_difference_file(new_items, fp_ink_data, difference_file)

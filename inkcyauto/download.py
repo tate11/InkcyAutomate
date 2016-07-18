@@ -41,7 +41,7 @@ def download_images(items, destination_path):
     """
     process_pool = multiprocessing.Pool()
 
-    image_data = [(os.path.join(destination_path, item['Name'].strio() + '.jpg'), item['Imgur Address']) for item in items]
+    image_data = [(os.path.join(destination_path, item['Name'].strip() + '.jpg'), item['Imgur Address']) for item in items]
     results = process_pool.map(download_image, image_data)
     return [x for x in results if len(x)]
 

@@ -70,7 +70,7 @@ def get_fp_ink_data():
         page_number += 1
     return items
 
-def calculate_differences(base_file, new_file, match_field=None):
+def calculate_differences(base_file_handle, new_file_handle, match_field=None):
     """
     Calculate the differences between two CSV files matching on a field.
 
@@ -82,10 +82,18 @@ def calculate_differences(base_file, new_file, match_field=None):
     """
     if not match_field:
         match_field = 'Imgur Address'
+
+    # Get our CSV readers ready for the file handles provided.
+    new_file = csv.DictReader(new_file_handle)
+    base_file = csv.DictReader(base_file_handle)
+
     # Calculate a set of unique values in the given matching field. Then select
     # items from the new file that are in the set of unique values and their
     # value is not the empty string.
     unique_image_urls = set(i[match_field] for i in new_file) - set(i[match_field] for i in base_file)
+    
+    # Rewind the underlying new CSV so we can read through it again.
+    new_file_handle.seek(0)
     unique_items = [i for i in new_file if i[match_field] in unique_image_urls and len(i[match_field].strip())]
     return unique_items
 
@@ -115,13 +123,16 @@ def write_difference_file(items, fp_ink_data, path):
         file_writer = csv.DictWriter(file_handle, fieldnames=field_names)
         file_writer.writeheader()
         for item in items:
-            fp_item = [i for i in fp_ink_data if i['Name'] == item['Name']]
+            fp_item = [i for i in fp_ink_data if (i['Brand'] + ' ' + i['Name']) == unicode(item['Name'], 'utf-8')]
             content = ''
             brand = ''
             colors = ''
             if len(fp_item):
                 fp_item = fp_item[0]
-                
+                content = '<a href="http://www.fp-ink.info/en/details/{}.ink"><img src="http://www.fp-ink.info/colorcard{}.png"></a>'.format(fp_item['ID'], fp_item['ID'])
+                brand = fp_item['Brand']
+                colors = fp_item['Hue'].split('-')
+                colors = ' '.join(colors)
             row = {
                 '#id': '',
                 'SKU': '',
