@@ -23,9 +23,6 @@ def main(argv):
 
     """
 
-    get_fp_ink_data()
-    sys.exit()
-
     file_directory = './'
     image_directory = 'Images'
     wordpress_file = 'goedewordpress.csv'
@@ -90,6 +87,14 @@ def main(argv):
         sys.exit(2)
     print 'Airtable file ready!'
 
+    try:
+        print 'Retrieving fp-ink.info data...'
+        fp_ink_data = get_fp_ink_data()
+    except Exception as error:
+        print error
+        sys.exit(2)
+    print 'fp-ink.info data ready!'
+
     print 'Importing source CSVs...'
     with open(wordpress_file) as wordpress_file_handle, open(airtable_file) as airtable_file_handle:
         wordpress_reader = csv.DictReader(wordpress_file_handle)
@@ -99,7 +104,7 @@ def main(argv):
         new_items = calculate_differences(wordpress_reader, airtable_reader)
 
         print 'Writing differences out to file...'
-        write_difference_file(new_items, None, difference_file)
+        write_difference_file(new_items, fp_ink_data, difference_file)
 
         print 'Downloading new images...'
         failed_images = download_images(new_items, image_directory)
