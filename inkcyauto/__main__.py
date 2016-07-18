@@ -24,8 +24,8 @@ def main(argv):
     """
 
     file_directory = './'
-    image_directory = 'Images'
-    wordpress_file = 'goedewordpress.csv'
+    image_directory = 'images'
+    wordpress_file = 'wordpress.csv'
     airtable_file = 'airtable.csv'
     difference_file = 'difference.csv'
 
