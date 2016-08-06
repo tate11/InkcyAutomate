@@ -1,0 +1,7 @@
+venv
+*.pyc
+__pycache__
+images
+airtable.csv
+wordpress.csv
+difference.csv
